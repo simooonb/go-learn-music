@@ -34,3 +34,24 @@ func TestAddNotes(t *testing.T) {
 	assert.Equal(t, bFlat, eFlat.Add(PerfectFifth), "Eb + P5 should be Bb an octave up")
 	assert.Equal(t, bFlatUp, bFlat.Add(PerfectOctave), "Bb + P12 should be Bb an octave up")
 }
+
+func TestDecodeNote(t *testing.T) {
+	dSharpStr := "D#1"
+	gFlatFlatStr := "Gbb3"
+	aStr := "A4"
+	bSharpSharpStr := "B##4"
+	cFlatStr := "Cb2"
+
+	dSharp := Note{Name: D, Accidental: Sharp, Octave: 1}
+	gFlatFlat := Note{Name: G, Accidental: FlatFlat, Octave: 3}
+	a := Note{Name: A, Accidental: NoAccidental, Octave: 4}
+	bSharpSharp := Note{Name: B, Accidental: SharpSharp, Octave: 4}
+	cFlat := Note{Name: C, Accidental: Flat, Octave: 2}
+
+	// todo: add failing cases
+	assert.Equal(t, dSharp, DecodeNote(dSharpStr), "D#1 should be decoded")
+	assert.Equal(t, gFlatFlat, DecodeNote(gFlatFlatStr), "Gbb3 should be decoded")
+	assert.Equal(t, a, DecodeNote(aStr), "A4 should be decoded")
+	assert.Equal(t, bSharpSharp, DecodeNote(bSharpSharpStr), "4 should be decoded")
+	assert.Equal(t, cFlat, DecodeNote(cFlatStr), "Cb2 should be decoded")
+}

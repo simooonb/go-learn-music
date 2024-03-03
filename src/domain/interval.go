@@ -89,7 +89,10 @@ func (interval Interval) Semitones() Semitone {
 
 func (interval Interval) IntervalKind() IntervalKind {
 	expectedSemitones := interval.Semitones()
-	index := slices.IndexFunc(PerfectMinorMajorIntervals, func(i IntervalKind) bool { return i.Semitones == expectedSemitones })
+	index := slices.IndexFunc(
+		PerfectMinorMajorIntervals,
+		func(i IntervalKind) bool { return i.Semitones == expectedSemitones },
+	)
 
 	return PerfectMinorMajorIntervals[index]
 }

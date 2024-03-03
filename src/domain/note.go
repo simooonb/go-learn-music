@@ -1,9 +1,19 @@
 package domain
 
+import (
+	"fmt"
+	"strconv"
+)
+
 type NoteName struct {
 	Name      string
 	Semitones Semitone
 	Order     int
+}
+
+type Accidental struct {
+	Symbol    string
+	Semitones Semitone
 }
 
 var (
@@ -16,22 +26,22 @@ var (
 	G = NoteName{Name: "G", Semitones: 11, Order: 7}
 )
 
-const (
-	NoAccidental Semitone = 0
-	Sharp        Semitone = 1
-	SharpSharp   Semitone = 2
-	Flat         Semitone = -1
-	FlatFlat     Semitone = -2
+var (
+	NoAccidental = Accidental{Symbol: "", Semitones: 0}
+	Sharp        = Accidental{Symbol: "#", Semitones: 1}
+	SharpSharp   = Accidental{Symbol: "##", Semitones: 2}
+	Flat         = Accidental{Symbol: "b", Semitones: -1}
+	FlatFlat     = Accidental{Symbol: "bb", Semitones: -2}
 )
 
 type Note struct {
 	Name       NoteName
-	Accidental Semitone
+	Accidental Accidental
 	Octave     int
 }
 
 var NoteNames = []NoteName{A, B, C, D, E, F, G}
-var Accidentals = []Semitone{NoAccidental, Sharp, SharpSharp, Flat, FlatFlat}
+var Accidentals = []Accidental{NoAccidental, Sharp, SharpSharp, Flat, FlatFlat}
 
 var NoteNamesByOrder = map[int]NoteName{
 	A.Order: A,
@@ -43,8 +53,48 @@ var NoteNamesByOrder = map[int]NoteName{
 	G.Order: G,
 }
 
+var NoteNamesByString = map[string]NoteName{
+	A.Name: A,
+	B.Name: B,
+	C.Name: C,
+	D.Name: D,
+	E.Name: E,
+	F.Name: F,
+	G.Name: G,
+}
+
+var AccidentalByString = map[string]Accidental{
+	NoAccidental.Symbol: NoAccidental,
+	Sharp.Symbol:        Sharp,
+	Flat.Symbol:         Flat,
+	SharpSharp.Symbol:   SharpSharp,
+	FlatFlat.Symbol:     FlatFlat,
+}
+
+func (note Note) String() string {
+	return fmt.Sprintf("%s%s%d", note.Name.Name, note.Accidental.Symbol, note.Octave)
+}
+
+func DecodeNote(str string) Note {
+	octave, _ := strconv.Atoi(str[len(str)-1:])
+
+	var accidental Accidental
+
+	if len(str)-1 >= 1 {
+		accidental = AccidentalByString[str[1:len(str)-1]]
+	} else {
+		accidental = NoAccidental
+	}
+
+	return Note{
+		Name:       NoteNamesByString[str[0:1]],
+		Accidental: accidental,
+		Octave:     octave,
+	}
+}
+
 func (note Note) Semitones() Semitone {
-	return note.Name.Semitones + note.Accidental + Semitone(12*note.Octave)
+	return note.Name.Semitones + note.Accidental.Semitones + Semitone(12*note.Octave)
 }
 
 func (note Note) Add(interval IntervalKind) Note {
@@ -62,17 +112,17 @@ func (note Note) Add(interval IntervalKind) Note {
 		semitones = semitones % PerfectOctave.Semitones
 	}
 
-	var accidental Semitone
+	var accidental Accidental
 	semitonesLeft := semitones - name.Semitones
 
 	switch semitonesLeft {
-	case Sharp:
+	case Sharp.Semitones:
 		accidental = Sharp
-	case Flat:
+	case Flat.Semitones:
 		accidental = Flat
-	case SharpSharp:
+	case SharpSharp.Semitones:
 		accidental = SharpSharp
-	case FlatFlat:
+	case FlatFlat.Semitones:
 		accidental = FlatFlat
 	default:
 		accidental = NoAccidental
